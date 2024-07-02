@@ -1,0 +1,15 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'ShopController'
+    scrape_interval: 5s
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ['shop-controller:8080']
+
+  - job_name: 'DatabaseController'
+    scrape_interval: 5s
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ['database-controller:8080']

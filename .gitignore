@@ -1,0 +1,23 @@
+# Maven specific
+target/
+mvnw
+mvnw.cmd
+.mvn/
+mvn-wrapper.properties
+
+# Developer properties
+developer.properties
+
+# IDE specific
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Logs
+logs/
+*.log
+
+# Dependency directories
+bin/
+lib/
