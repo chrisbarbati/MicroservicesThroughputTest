@@ -9,11 +9,21 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+/**
+ * Class for writing data to an Excel file
+
+ */
 @Component
 public class ExcelWriter {
 
     private static final String FILE_NAME = "BatchTest.xlsx";
 
+    /**
+     * Writes the results of the batching test to an Excel file for later analysis
+     *
+     * @param batchSize The size of the batch
+     * @param processingTime The time taken to process the batch
+     */
     public void writeData(int batchSize, long processingTime) {
         Workbook workbook;
         Sheet sheet;

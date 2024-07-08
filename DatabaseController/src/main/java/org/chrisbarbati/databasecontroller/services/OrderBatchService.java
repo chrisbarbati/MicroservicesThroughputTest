@@ -14,12 +14,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Service class for testing various batch sizes and their effect on performance
+ */
 @Service
 public class OrderBatchService {
 
-    @Autowired
-    private ExcelWriter excelWriter;
-
+    private final ExcelWriter excelWriter;
     private final OrderRepository orderRepository;
     private final List<OrderEntity> orderBuffer = new ArrayList<>();
     private int batchSize = 1;
@@ -30,11 +31,24 @@ public class OrderBatchService {
 
     private Logger log = LoggerFactory.getLogger(this.getClass());
 
-    public OrderBatchService(OrderRepository orderRepository) {
+    /**
+     * Constructor for OrderBatchService
+     *
+     * @param orderRepository
+     */
+    @Autowired
+    public OrderBatchService(OrderRepository orderRepository, ExcelWriter excelWriter) {
         this.orderRepository = orderRepository;
+        this.excelWriter = excelWriter;
     }
 
+    /**
+     * Thread-safe method to add an order to the batch
+     *
+     * @param order Order to add
+     */
     public synchronized void addOrderToBatch(OrderEntity order) {
+
         if(recordCount == 0){
             startTime = System.currentTimeMillis();
         }
@@ -45,6 +59,12 @@ public class OrderBatchService {
         }
     }
 
+    /**
+     * Save the current batch of orders to the database.
+     *
+     * Scheduled to run every second to prevent waiting indefinitely for a full batch,
+     * but to only save the batch if it is full or if it has been 1 second since the last order was added.
+     */
     @Transactional
     @Scheduled(fixedRate = 1000)
     public synchronized void saveBatch() {
@@ -55,6 +75,7 @@ public class OrderBatchService {
             recordCount += orderBuffer.size();
             orderRepository.saveAll(orderBuffer);
             orderBuffer.clear();
+
             if(recordCount == 10000){
                 recordCount = 0;
                 log.info("10000 orders have been processed");
@@ -66,7 +87,11 @@ public class OrderBatchService {
         }
     }
 
-
+    /**
+     * Listens for messages from the shop-controller application to update the batch size
+     *
+     * @param message
+     */
         @KafkaListener(topics = {"batch-size"}, groupId = "shop-group", autoStartup = "true")
         public void updateBatchSize(String message) {
             try {

@@ -9,11 +9,21 @@ import org.springframework.stereotype.Component;
 
 import java.util.concurrent.CountDownLatch;
 
+/**
+ * Scheduler class to allow for scheduling of tasks
+ *
+ * Not currently in use
+ */
+
 @Component
 public class Scheduler {
 
+    private final APITest api;
+
     @Autowired
-    private APITest api;
+    public Scheduler(APITest api){
+        this.api = api;
+    }
 
     private static final Logger log = LoggerFactory.getLogger(Scheduler.class);
 

@@ -18,6 +18,10 @@ import java.util.Map;
 @Configuration
 public class KafkaConsumerConfig {
 
+    /**
+     * Create a consumer factory, and set the key / value deserializers
+     * @return
+     */
     @Bean
     public ConsumerFactory<String, String> consumerFactory() {
         Map<String, Object> configProps = new HashMap<>();
@@ -27,6 +31,10 @@ public class KafkaConsumerConfig {
         return new DefaultKafkaConsumerFactory<>(configProps);
     }
 
+    /**
+     * Create a Kafka listener container factory
+     * @return
+     */
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();

@@ -13,12 +13,18 @@ import java.util.stream.IntStream;
 public class PerformanceTest {
 
     private final APITest api;
+    private final int BATCH_STEP = 1000;
+    private final int NUMBER_OF_BATCHES = 10;
 
     @Autowired
     public PerformanceTest(APITest apiTest) {
         this.api = apiTest;
     }
 
+    /**
+     * Method to send the orders to the database controller and test the performance with varying batch sizes
+     * and different methods of sending the orders
+     */
     public void testPerformance() {
 
         // Generate 10,000 order entities
@@ -27,9 +33,9 @@ public class PerformanceTest {
                 .collect(Collectors.toList());
 
         // Test Kafka performance with varying batch sizes
-        for(int i = 1; i <= 10; i++){
+        for(int i = 1; i <= NUMBER_OF_BATCHES; i++){
             //Set the batch size
-            api.setBatchSize(i * 1000);
+            api.setBatchSize(i * BATCH_STEP);
             long kafkaStartTime = System.currentTimeMillis();
             orders.forEach(o -> api.sendOrderKafka(o));
             long kafkaEndTime = System.currentTimeMillis();
@@ -45,9 +51,9 @@ public class PerformanceTest {
         }
 
         // Test HTTP synchronous performance
-//        for(int i = 1; i <= 10; i++){
+//        for(int i = 1; i <= NUMBER_OF_BATCHES; i++){
 //            //Set the batch size
-//            api.setBatchSize(i * 1000);
+//            api.setBatchSize(i * BATCH_STEP);
 //            long httpSyncStartTime = System.currentTimeMillis();
 //            orders.forEach(o -> api.sendOrderHTTP(o));
 //            long httpSyncEndTime = System.currentTimeMillis();
@@ -64,7 +70,8 @@ public class PerformanceTest {
 
 
         // Test HTTP performance
-//        for(int i = 1; i <= 10; i++){
+//        for(int i = 1; i <= NUMBER_OF_BATCHES; i++){
+//            api.setBatchSize(i * BATCH_STEP);
 //            long httpStartTime = System.currentTimeMillis();
 //            CountDownLatch latch = new CountDownLatch(orders.size());
 //            orders.forEach(o -> api.sendOrderHTTP(o, latch));

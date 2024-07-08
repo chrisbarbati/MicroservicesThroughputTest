@@ -17,16 +17,18 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/order")
 public class OrderConsumerService {
-    private Logger log = LoggerFactory.getLogger(this.getClass());
+
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
+    private final ObjectMapper objectMapper;
+    private final OrderRepository orderRepository;
+    private final OrderBatchService orderBatchService;
 
     @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
-    private OrderRepository orderRepository;
-
-    @Autowired
-    private OrderBatchService orderBatchService;
+    public OrderConsumerService(OrderRepository orderRepository, OrderBatchService orderBatchService, ObjectMapper objectMapper) {
+        this.orderRepository = orderRepository;
+        this.orderBatchService = orderBatchService;
+        this.objectMapper = objectMapper;
+    }
 
     /**
      * Method to consume a message from addOrder topic

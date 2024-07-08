@@ -1,7 +1,6 @@
 package org.chrisbarbati.databasecontroller.services.producers;
 
 import org.chrisbarbati.databasecontroller.entities.OrderEntity;
-import org.chrisbarbati.databasecontroller.entities.ProductEntity;
 import org.chrisbarbati.databasecontroller.repositories.OrderRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,19 +16,16 @@ import java.util.List;
  */
 @Service
 public class OrderProducerService {
+
     private static final Logger log = LoggerFactory.getLogger(OrderProducerService.class);
+    private final OrderRepository orderRepository;
+    private final KafkaTemplate<String, String> kafkaTemplate;
 
-    /**
-     * Autowired OrderRepository for database access
-     */
     @Autowired
-    private OrderRepository orderRepository;
-
-    /**
-     * Autowired KafkaTemplate for sending messages to Kafka
-     */
-    @Autowired
-    private KafkaTemplate<String, String> kafkaTemplate;
+    public OrderProducerService(OrderRepository orderRepository, KafkaTemplate<String, String> kafkaTemplate) {
+        this.orderRepository = orderRepository;
+        this.kafkaTemplate = kafkaTemplate;
+    }
 
     /**
      * Publish all orders to the orders topic

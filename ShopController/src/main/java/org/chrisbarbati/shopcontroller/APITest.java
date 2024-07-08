@@ -13,14 +13,21 @@ import reactor.core.publisher.Mono;
 
 import java.util.concurrent.CountDownLatch;
 
+/**
+ *
+ */
+
 @Service
 public class APITest {
 
-    @Autowired
-    private KafkaTemplate<String, String> kafkaTemplate;
+    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final WebClient.Builder webClientBuilder;
 
     @Autowired
-    private WebClient.Builder webClientBuilder;
+    public APITest(KafkaTemplate<String, String> kafkaTemplate, WebClient.Builder webClientBuilder) {
+        this.kafkaTemplate = kafkaTemplate;
+        this.webClientBuilder = webClientBuilder;
+    }
 
     private RestTemplate restTemplate = new RestTemplate();
 
