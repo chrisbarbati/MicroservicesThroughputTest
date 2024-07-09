@@ -1,6 +1,5 @@
 package org.chrisbarbati.databasecontroller.services.consumers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.chrisbarbati.databasecontroller.entities.OrderEntity;
 import org.chrisbarbati.databasecontroller.repositories.OrderRepository;

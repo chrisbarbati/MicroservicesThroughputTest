@@ -79,4 +79,12 @@ public class APITest {
     public void setBatchSize(int batchSize){
         kafkaTemplate.send("batch-size", Integer.toString(batchSize));
     }
+
+    /**
+     * Method to set the test quantity
+     * @param testQuantity The new test quantity to set
+     */
+    public void setTestQuantity(int testQuantity) {
+        kafkaTemplate.send("test-quantity", Integer.toString(testQuantity));
+    }
 }

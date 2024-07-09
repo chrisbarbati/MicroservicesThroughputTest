@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -28,9 +27,18 @@ public class PerformanceTest {
     public void testPerformance() {
 
         // Generate 10,000 order entities
-        List<OrderEntity> orders = IntStream.range(0, 10000)
+        List<OrderEntity> orders = IntStream.range(0, 30000)
                 .mapToObj(i -> new OrderEntity(/* populate order fields */))
                 .collect(Collectors.toList());
+
+        api.setTestQuantity(orders.size());
+
+        //Sleep for 5 seconds
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         // Test Kafka performance with varying batch sizes
         for(int i = 1; i <= NUMBER_OF_BATCHES; i++){

@@ -23,6 +23,8 @@ public class OrderBatchService {
     private final ExcelWriter excelWriter;
     private final OrderRepository orderRepository;
     private final List<OrderEntity> orderBuffer = new ArrayList<>();
+    private int testQuantity = 30000;
+    private final long maxWaitTime = 100;
     private int batchSize = 1;
     private int recordCount = 0;
     private long startTime = 0;
@@ -69,18 +71,18 @@ public class OrderBatchService {
     @Scheduled(fixedRate = 1000)
     public synchronized void saveBatch() {
         long currentTime = System.currentTimeMillis();
-        // Save the batch if it is full or if it has been 1 second since the last order was added (to prevent waiting indefinitely for a full batch)
-        if (!orderBuffer.isEmpty() && (orderBuffer.size() >= batchSize || currentTime - lastOrderTime > 1000)) {
+        // Save the batch if it is full or if it has been more than maxWaitTime since the last order was added (to prevent waiting indefinitely for a full batch)
+        if (!orderBuffer.isEmpty() && (orderBuffer.size() >= batchSize || currentTime - lastOrderTime > maxWaitTime)) {
             log.info("Scheduled event called, saving batch of " + orderBuffer.size() + " orders");
             recordCount += orderBuffer.size();
             orderRepository.saveAll(orderBuffer);
             orderBuffer.clear();
 
-            if(recordCount == 10000){
+            if(recordCount == testQuantity){
                 recordCount = 0;
-                log.info("10000 orders have been processed");
+                log.info(testQuantity + " orders have been processed");
                 endTime = System.currentTimeMillis();
-                log.info("Time to process 10000 orders: " + (endTime - startTime) + "ms");
+                log.info("Time to process " + testQuantity +  " orders: " + (endTime - startTime) + "ms");
                 log.info("Test for batch size " + batchSize + " complete");
                 excelWriter.writeData(batchSize, endTime - startTime);
             }
@@ -101,4 +103,19 @@ public class OrderBatchService {
                 log.error("Error occurred while parsing batch size", e);
             }
         }
+
+    /**
+     * Listens for messages from the shop-controller application to update the test quantity
+     *
+     * @param message
+     */
+    @KafkaListener(topics = {"test-quantity"}, groupId = "shop-group", autoStartup = "true")
+    public void updateTestQuantity(String message) {
+        try {
+            testQuantity = Integer.parseInt(message);
+            log.info("Test quantity updated to: " + testQuantity);
+        } catch (NumberFormatException e) {
+            log.error("Error occurred while parsing test quantity", e);
+        }
+    }
 }
