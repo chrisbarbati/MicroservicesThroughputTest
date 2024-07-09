@@ -13,7 +13,7 @@ public class PerformanceTest {
 
     private final APITest api;
     private final int BATCH_STEP = 1000;
-    private final int NUMBER_OF_BATCHES = 10;
+    private final int NUMBER_OF_BATCHES = 30;
 
     @Autowired
     public PerformanceTest(APITest apiTest) {
@@ -27,7 +27,7 @@ public class PerformanceTest {
     public void testPerformance() {
 
         // Generate 10,000 order entities
-        List<OrderEntity> orders = IntStream.range(0, 30000)
+        List<OrderEntity> orders = IntStream.range(0, NUMBER_OF_BATCHES*BATCH_STEP)
                 .mapToObj(i -> new OrderEntity(/* populate order fields */))
                 .collect(Collectors.toList());
 
