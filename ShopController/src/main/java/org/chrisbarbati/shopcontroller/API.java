@@ -1,10 +1,13 @@
 package org.chrisbarbati.shopcontroller;
 
 import org.chrisbarbati.shopcontroller.entities.OrderEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -19,6 +22,8 @@ import java.util.concurrent.CountDownLatch;
 
 @Service
 public class API {
+
+    private static final Logger logger = LoggerFactory.getLogger(API.class);
 
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final WebClient.Builder webClientBuilder;
@@ -86,5 +91,16 @@ public class API {
      */
     public void setTestQuantity(int testQuantity) {
         kafkaTemplate.send("test-quantity", Integer.toString(testQuantity));
+    }
+
+    /**
+     * Method to listen for messages from the batch-complete topic and set the boolean in the PerformanceTest class
+     * to true when a message is received
+     *
+     */
+    @KafkaListener(topics = {"batch-complete"}, groupId = "shop-group", autoStartup = "true")
+    public void listenForBatchComplete() {
+        logger.info("Batch completed, starting new test...");
+        PerformanceTest.setBatchComplete(true);
     }
 }

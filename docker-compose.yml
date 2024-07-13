@@ -62,7 +62,10 @@ services:
         line-items:1:1,
         addLineItem:1:1,
         deleteLineItem:1:1,
-        updateLineItem:1:1
+        updateLineItem:1:1,
+        batch-complete:1:1,
+        test-quantity:1:1,
+        batch-size:1:1
         "
       AUTO_CREATE_TOPICS_ENABLE: "true"
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1

@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +23,7 @@ public class OrderBatchService {
 
     private final ExcelWriter excelWriter;
     private final OrderRepository orderRepository;
+    private final KafkaTemplate kafkaTemplate;
     private final List<OrderEntity> orderBuffer = new ArrayList<>();
     private int testQuantity = 30000;
     private final long maxWaitTime = 100;
@@ -39,9 +41,10 @@ public class OrderBatchService {
      * @param orderRepository
      */
     @Autowired
-    public OrderBatchService(OrderRepository orderRepository, ExcelWriter excelWriter) {
+    public OrderBatchService(OrderRepository orderRepository, ExcelWriter excelWriter, KafkaTemplate kafkaTemplate) {
         this.orderRepository = orderRepository;
         this.excelWriter = excelWriter;
+        this.kafkaTemplate = kafkaTemplate;
     }
 
     /**
@@ -85,6 +88,9 @@ public class OrderBatchService {
                 log.info("Time to process " + testQuantity +  " orders: " + (endTime - startTime) + "ms");
                 log.info("Test for batch size " + batchSize + " complete");
                 excelWriter.writeData(batchSize, endTime - startTime);
+
+                // Send a Kafka message to the batch-complete topic if the test is complete
+                kafkaTemplate.send("batch-complete", "Batch complete");
             }
         }
     }

@@ -15,6 +15,7 @@ public class PerformanceTest {
     private final API api;
     private final int BATCH_STEP;
     private final int TEST_QUANTITY;
+    private static boolean batchComplete = false;
 
     @Autowired
     public PerformanceTest(API api, Environment env) {
@@ -28,7 +29,6 @@ public class PerformanceTest {
      * and different methods of sending the orders
      */
     public void testPerformance() {
-
         // Generate 10,000 order entities
         List<OrderEntity> orders = IntStream.range(0, TEST_QUANTITY)
                 .mapToObj(i -> new OrderEntity(/* populate order fields */))
@@ -45,6 +45,9 @@ public class PerformanceTest {
 
         // Test Kafka performance with varying batch sizes
         for(int i = 1; i <= (TEST_QUANTITY/BATCH_STEP); i++){
+            //Reset batchComplete to false
+            setBatchComplete(false);
+
             //Set the batch size
             api.setBatchSize(i * BATCH_STEP);
             long kafkaStartTime = System.currentTimeMillis();
@@ -53,11 +56,13 @@ public class PerformanceTest {
             long kafkaDuration = kafkaEndTime - kafkaStartTime;
             System.out.println("Kafka Time: " + kafkaDuration + "ms");
 
-            //Wait 1 minute before starting the next test
-            try {
-                Thread.sleep(60000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            //Wait for the batch to complete before starting the next test
+            while(!isBatchComplete()){
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
 
@@ -105,5 +110,13 @@ public class PerformanceTest {
 //            }
 //        }
 
+    }
+
+    public static boolean isBatchComplete() {
+        return batchComplete;
+    }
+
+    public static void setBatchComplete(boolean batchComplete) {
+        PerformanceTest.batchComplete = batchComplete;
     }
 }
