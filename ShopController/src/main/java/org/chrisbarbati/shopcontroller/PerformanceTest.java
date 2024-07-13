@@ -68,6 +68,8 @@ public class PerformanceTest {
 
         // Test HTTP synchronous performance
 //        for(int i = 1; i <= (TEST_QUANTITY/BATCH_STEP); i++){
+//            //Reset batchComplete to false
+//            setBatchComplete(false);
 //            //Set the batch size
 //            api.setBatchSize(i * BATCH_STEP);
 //            long httpSyncStartTime = System.currentTimeMillis();
@@ -75,18 +77,21 @@ public class PerformanceTest {
 //            long httpSyncEndTime = System.currentTimeMillis();
 //            long httpSyncDuration = httpSyncEndTime - httpSyncStartTime;
 //            System.out.println("HTTP Sync Time: " + httpSyncDuration + "ms");
-//
-//            //Wait 1 minute before starting the next test
-//            try {
-//                Thread.sleep(60000);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
+//            //Wait for the batch to complete before starting the next test
+//            while(!isBatchComplete()){
+//                try {
+//                    Thread.sleep(2000);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
 //            }
 //        }
 
 
         // Test HTTP performance
 //        for(int i = 1; i <= (TEST_QUANTITY/BATCH_STEP); i++){
+//                //Reset batchComplete to false
+//                setBatchComplete(false);
 //            api.setBatchSize(i * BATCH_STEP);
 //            long httpStartTime = System.currentTimeMillis();
 //            CountDownLatch latch = new CountDownLatch(orders.size());
@@ -102,13 +107,14 @@ public class PerformanceTest {
 //            long httpDuration = httpEndTime - httpStartTime;
 //            System.out.println("HTTP Time: " + httpDuration + "ms");
 //
-//            //Wait 1 minute before starting the next test
-//            try {
-//                Thread.sleep(60000);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
+//            //Wait for the batch to complete before starting the next test
+//            while(!isBatchComplete()){
+//                try {
+//                    Thread.sleep(2000);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
 //            }
-//        }
 
     }
 
