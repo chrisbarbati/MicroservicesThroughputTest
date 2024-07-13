@@ -18,10 +18,25 @@ Many organizations are transitioning from monolithic to microservices architectu
 By default, simply build the Docker images and tests will begin 30 seconds after startup. Please see below for details on how to configure various settings for the tests.
 
 ### ShopController
-The ShopController application contains the logic to send OrderEntity objects to the DatabaseController via HTTP or Kafka, and also to change the batch size, step between batch sizes, and to log the time to send each batch. By default there are 10 tests of 10,000 OrderEntities per, starting at batch size 1000 and increasing to batch size of 10,000. All of this logic is contained in the PerformanceTest class. Note that the time logged by this application is the send time for each batch to be completely sent to the DatabaseController, but does not include the time to insert into the database. 
+The ShopController application contains the logic to send OrderEntity objects to the DatabaseController via HTTP or Kafka, and also to change the batch size, step between batch sizes, and to log the time to send each batch. 
+
+Once compiled the Dockerfile will copy application.properties to the container, which contains the following properties:
+    
+```
+batch.step=1000
+test.quantity=10000
+```
+
+The batch.step property determines the step between batch sizes, and the test.quantity property determines the total number of records to be sent. The default values will send 10,000 records in batches of 1,000, 2,000, 3,000, etc.
+
+Note that the time logged by this application is the send time for each batch to be completely sent to the DatabaseController, but does not include the time to insert into the database. 
 
 ### DatabaseController
-The DatabaseController application contains the logic to receive OrderEntity objects, as well as an endpoint that listens for requests from the ShopController to update batch sizes. It also includes functionality to change the wait time for a full batch and logging statements to log the time required to insert the records to the PostgreSQL database at each batch size. This logic is contained in the OrderBatchSize class. There is an additional ExcelWriter class that saves the test results for various batches to a spreadsheet, to simplify later analysis.
+The DatabaseController application contains the logic to receive OrderEntity objects, as well as an endpoint that listens for requests from the ShopController to update batch sizes. 
+It also includes functionality to change the wait time for a full batch and logging statements to log the time required to insert the records to the PostgreSQL database at each batch size. 
+This logic is contained in the OrderBatchSize class. There is an additional ExcelWriter class that saves the test results for various batches to a spreadsheet, to simplify later analysis.
+
+The times logged by this application start the moment the first record of the batch is received and end when the last record is inserted into the database.
 
 ### Grafana
 A full explanation of Grafana / Prometheus is beyond the scope of this README, but in short you can access localhost:3000 from your browser (exposed from within the Docker container) and load public dashboards of your choosing to monitor the various applications. The default login is admin/admin. I recommend the following two dashboards:
