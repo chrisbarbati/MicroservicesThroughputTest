@@ -18,13 +18,13 @@ import java.util.concurrent.CountDownLatch;
  */
 
 @Service
-public class APITest {
+public class API {
 
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final WebClient.Builder webClientBuilder;
 
     @Autowired
-    public APITest(KafkaTemplate<String, String> kafkaTemplate, WebClient.Builder webClientBuilder) {
+    public API(KafkaTemplate<String, String> kafkaTemplate, WebClient.Builder webClientBuilder) {
         this.kafkaTemplate = kafkaTemplate;
         this.webClientBuilder = webClientBuilder;
     }

@@ -2,6 +2,7 @@ package org.chrisbarbati.shopcontroller;
 
 import org.chrisbarbati.shopcontroller.entities.OrderEntity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -11,13 +12,15 @@ import java.util.stream.IntStream;
 @Component
 public class PerformanceTest {
 
-    private final APITest api;
-    private final int BATCH_STEP = 1000;
-    private final int NUMBER_OF_BATCHES = 30;
+    private final API api;
+    private final int BATCH_STEP;
+    private final int TEST_QUANTITY;
 
     @Autowired
-    public PerformanceTest(APITest apiTest) {
-        this.api = apiTest;
+    public PerformanceTest(API api, Environment env) {
+        this.api = api;
+        this.BATCH_STEP = Integer.parseInt(env.getProperty("batch.step"));
+        this.TEST_QUANTITY = Integer.parseInt(env.getProperty("test.quantity"));
     }
 
     /**
@@ -27,7 +30,7 @@ public class PerformanceTest {
     public void testPerformance() {
 
         // Generate 10,000 order entities
-        List<OrderEntity> orders = IntStream.range(0, NUMBER_OF_BATCHES*BATCH_STEP)
+        List<OrderEntity> orders = IntStream.range(0, TEST_QUANTITY)
                 .mapToObj(i -> new OrderEntity(/* populate order fields */))
                 .collect(Collectors.toList());
 
@@ -41,7 +44,7 @@ public class PerformanceTest {
         }
 
         // Test Kafka performance with varying batch sizes
-        for(int i = 1; i <= NUMBER_OF_BATCHES; i++){
+        for(int i = 1; i <= (TEST_QUANTITY/BATCH_STEP); i++){
             //Set the batch size
             api.setBatchSize(i * BATCH_STEP);
             long kafkaStartTime = System.currentTimeMillis();
@@ -59,7 +62,7 @@ public class PerformanceTest {
         }
 
         // Test HTTP synchronous performance
-//        for(int i = 1; i <= NUMBER_OF_BATCHES; i++){
+//        for(int i = 1; i <= (TEST_QUANTITY/BATCH_STEP); i++){
 //            //Set the batch size
 //            api.setBatchSize(i * BATCH_STEP);
 //            long httpSyncStartTime = System.currentTimeMillis();
@@ -78,7 +81,7 @@ public class PerformanceTest {
 
 
         // Test HTTP performance
-//        for(int i = 1; i <= NUMBER_OF_BATCHES; i++){
+//        for(int i = 1; i <= (TEST_QUANTITY/BATCH_STEP); i++){
 //            api.setBatchSize(i * BATCH_STEP);
 //            long httpStartTime = System.currentTimeMillis();
 //            CountDownLatch latch = new CountDownLatch(orders.size());

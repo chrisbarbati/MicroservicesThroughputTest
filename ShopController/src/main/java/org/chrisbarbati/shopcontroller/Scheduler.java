@@ -17,10 +17,10 @@ import java.util.concurrent.CountDownLatch;
 @Component
 public class Scheduler {
 
-    private final APITest api;
+    private final API api;
 
     @Autowired
-    public Scheduler(APITest api){
+    public Scheduler(API api){
         this.api = api;
     }
 

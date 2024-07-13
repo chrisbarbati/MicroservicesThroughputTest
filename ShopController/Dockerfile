@@ -22,6 +22,8 @@ WORKDIR /app
 # Copy the packaged Spring Boot application JAR file into the container
 COPY --from=builder /app/target/ShopController-0.0.1-SNAPSHOT.jar /app/ShopController-0.0.1-SNAPSHOT.jar
 
+COPY src/main/resources/application.properties /app
+
 # Expose the port that the Spring Boot application will run on
 EXPOSE 8080
 
