@@ -1,5 +1,8 @@
 # Microservices Communication and Batch Processing Test Applications
 
+### Background
+Many organizations are transitioning from monolithic to microservices architectures. As applications grow, scaling several smaller services is often easier than scaling a single large application. Effective communication between microservices is crucial for maximizing throughput. This application allows testing of HTTP and Kafka communication methods and the impact of different batch sizes on database performance.
+
 ### Overview
 These simple Spring Boot applications are designed to test various methods of communicating between microservices (HTTP POST requests, Kafka Event Streaming) and the impact of different batch insert sizes on database throughput. The microservices are containerized using Docker Compose.
 
@@ -10,12 +13,11 @@ These simple Spring Boot applications are designed to test various methods of co
 - Data persistence with PostgreSQL.
 - Containerized deployment with Docker Compose.
 
-### Background
-Many organizations are transitioning from monolithic to microservices architectures. As applications grow, scaling several smaller services is often easier than scaling a single large application. Effective communication between microservices is crucial for maximizing throughput. This application allows testing of HTTP and Kafka communication methods and the impact of different batch sizes on database performance.
-
 ## How to use
-
 By default, simply build the Docker images and tests will begin 30 seconds after startup. Please see below for details on how to configure various settings for the tests.
+
+The output of the tests will be saved to a spreadsheet in the DatabaseController application, which can be found in /app in the container. The configurations for the tests are done in ShopController's application.properties file, which is copied to the container during the build process. 
+To change the configuration later, simply edit the application.properties file in the ShopController container and restart all containers.
 
 ### ShopController
 The ShopController application contains the logic to send OrderEntity objects to the DatabaseController via HTTP or Kafka, and also to change the batch size, step between batch sizes, and to log the time to send each batch. 
@@ -25,9 +27,12 @@ Once compiled the Dockerfile will copy application.properties to the container, 
 ```
 batch.step=1000
 test.quantity=10000
+factors.only=true
 ```
 
 The batch.step property determines the step between batch sizes, and the test.quantity property determines the total number of records to be sent. The default values will send 10,000 records in batches of 1,000, 2,000, 3,000, etc.
+
+The factors.only property will test only for batch sizes for which the test.quantity is evenly divisible. Eg. if test.quantity=10000 and batch.step=1000, the factors.only property will only test for batch sizes of 1000, 2000, 5000, and 10000.
 
 Note that the time logged by this application is the send time for each batch to be completely sent to the DatabaseController, but does not include the time to insert into the database. 
 

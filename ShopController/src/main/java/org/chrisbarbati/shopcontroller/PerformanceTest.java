@@ -1,6 +1,8 @@
 package org.chrisbarbati.shopcontroller;
 
 import org.chrisbarbati.shopcontroller.entities.OrderEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
@@ -12,16 +14,19 @@ import java.util.stream.IntStream;
 @Component
 public class PerformanceTest {
 
+    private static final Logger logger = LoggerFactory.getLogger(PerformanceTest.class);
     private final API api;
     private final int BATCH_STEP;
     private final int TEST_QUANTITY;
     private static boolean batchComplete = false;
+    private boolean factorsOnly = true;
 
     @Autowired
     public PerformanceTest(API api, Environment env) {
         this.api = api;
         this.BATCH_STEP = Integer.parseInt(env.getProperty("batch.step"));
         this.TEST_QUANTITY = Integer.parseInt(env.getProperty("test.quantity"));
+        this.factorsOnly = Boolean.parseBoolean(env.getProperty("factors.only"));
     }
 
     /**
@@ -32,7 +37,7 @@ public class PerformanceTest {
         // Generate 10,000 order entities
         List<OrderEntity> orders = IntStream.range(0, TEST_QUANTITY)
                 .mapToObj(i -> new OrderEntity(/* populate order fields */))
-                .collect(Collectors.toList());
+                .toList();
 
         api.setTestQuantity(orders.size());
 
@@ -40,6 +45,7 @@ public class PerformanceTest {
         try {
             Thread.sleep(5000);
         } catch (InterruptedException e) {
+            logger.error(e.getMessage());
             e.printStackTrace();
         }
 
@@ -47,6 +53,11 @@ public class PerformanceTest {
         for(int i = 1; i <= (TEST_QUANTITY/BATCH_STEP); i++){
             //Reset batchComplete to false
             setBatchComplete(false);
+
+            if(factorsOnly && ( TEST_QUANTITY % (i * BATCH_STEP) )!= 0){
+                logger.info("Skipping batch size: " + i * BATCH_STEP + " because it is not a factor of " + TEST_QUANTITY);
+                continue;
+            }
 
             //Set the batch size
             api.setBatchSize(i * BATCH_STEP);
@@ -70,6 +81,11 @@ public class PerformanceTest {
 //        for(int i = 1; i <= (TEST_QUANTITY/BATCH_STEP); i++){
 //            //Reset batchComplete to false
 //            setBatchComplete(false);
+
+//            if(factorsOnly && ( TEST_QUANTITY % (i * BATCH_STEP) )!= 0){
+//                logger.info("Skipping batch size: " + i * BATCH_STEP + " because it is not a factor of " + TEST_QUANTITY);
+//                continue;
+//            }
 //            //Set the batch size
 //            api.setBatchSize(i * BATCH_STEP);
 //            long httpSyncStartTime = System.currentTimeMillis();
@@ -92,6 +108,12 @@ public class PerformanceTest {
 //        for(int i = 1; i <= (TEST_QUANTITY/BATCH_STEP); i++){
 //                //Reset batchComplete to false
 //                setBatchComplete(false);
+
+
+    //        if(factorsOnly && ( TEST_QUANTITY % (i * BATCH_STEP) )!= 0){
+    //            logger.info("Skipping batch size: " + i * BATCH_STEP + " because it is not a factor of " + TEST_QUANTITY);
+    //            continue;
+    //        }
 //            api.setBatchSize(i * BATCH_STEP);
 //            long httpStartTime = System.currentTimeMillis();
 //            CountDownLatch latch = new CountDownLatch(orders.size());
